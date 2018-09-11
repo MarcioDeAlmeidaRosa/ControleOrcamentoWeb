@@ -10,7 +10,8 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using System.Threading.Tasks;
 using ControleOrcamentoWeb.Models;
 using Microsoft.AspNet.Identity.Owin;
-
+using RestSharp;
+using Newtonsoft.Json;
 
 namespace ControleOrcamentoWeb.Controllers
 {
@@ -59,30 +60,19 @@ namespace ControleOrcamentoWeb.Controllers
         {
             if (ModelState.IsValid)
             {
-                IdentityUser user = new IdentityUser
+                RestClient client = new RestClient("http://localhost:60004/api/auth/registrar");
+                RestRequest request = new RestRequest(Method.POST);
+                var json = JsonConvert.SerializeObject(model);
+                request.AddParameter("application/json; charset=utf-8", json, ParameterType.RequestBody);
+                var retorno = client.Execute<object>(request);
+                if (retorno.StatusCode == System.Net.HttpStatusCode.OK)
                 {
-                    UserName = model.Email
-                };
-                var result = await UserManager.CreateAsync((ApplicationUser)user, model.Password);
-                if (result.Succeeded)
-                {
-                    //await SignInAsync(user, isPersistent: false);
                     return RedirectToAction("Index", "Home");
                 }
-                else
-                {
-                    AddErrors(result);
-                }
+                var result = Newtonsoft.Json.Linq.JObject.Parse(retorno.Content).ToObject<MessaResponseAPI>();
+                ModelState.AddModelError("", result.Message);
             }
-            // If we got this far, something failed, redisplay form
             return View(model);
-        }
-        private void AddErrors(IdentityResult result)
-        {
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError("", error);
-            }
         }
 
         [AllowAnonymous]
@@ -99,16 +89,16 @@ namespace ControleOrcamentoWeb.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await UserManager.FindAsync(model.UserName, model.Password);
-                if (user != null)
-                {
-                    //await SignInAsync(user, model.RememberMe);
-                    return RedirectToLocal(returnUrl);
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Invalid username or password.");
-                }
+                //var user = await UserManager.FindAsync(model.UserName, model.Senha);
+                //if (user != null)
+                //{
+                //    //await SignInAsync(user, model.RememberMe);
+                //    return RedirectToLocal(returnUrl);
+                //}
+                //else
+                //{
+                //    ModelState.AddModelError("", "Invalid username or password.");
+                //}
             }
 
             // If we got this far, something failed, redisplay form
@@ -124,6 +114,14 @@ namespace ControleOrcamentoWeb.Controllers
             else
             {
                 return RedirectToAction("Index", "Home");
+            }
+        }
+
+        private void AddErrors(IdentityResult result)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error);
             }
         }
     }

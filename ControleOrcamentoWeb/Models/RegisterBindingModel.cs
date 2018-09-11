@@ -13,12 +13,12 @@ namespace ControleOrcamentoWeb.Models
         [DataType(DataType.Password)]
         [Display(Name = "Senha")]
         [Required(ErrorMessage = "O campo Senha é obrigatório.")]
-        public string Password { get; set; }
+        public string Senha { get; set; }
 
         [DataType(DataType.Password)]
         [Display(Name = "Confirmar senha")]
-        [Compare("Password", ErrorMessage = "A senha não confere com a confirmação de senha.")]
+        [Compare("Senha", ErrorMessage = "A senha não confere com a confirmação de senha.")]
         [Required(ErrorMessage = "O campo Confirmar senha é obrigatório.")]
-        public string ConfirmPassword { get; set; }
+        public string ConfirmacaoSenha { get; set; }
     }
 }
