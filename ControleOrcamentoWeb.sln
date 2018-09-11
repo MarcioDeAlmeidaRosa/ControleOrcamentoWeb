@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2016
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControleOrcamentoWeb", "ControleOrcamentoWeb\ControleOrcamentoWeb.csproj", "{74DF4357-4F5E-4A9E-9D94-655EC0F886EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControleOrcamentoWeb.Tests", "ControleOrcamentoWeb.Tests\ControleOrcamentoWeb.Tests.csproj", "{25828C74-ADF1-41D2-9880-D588C89410E8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{74DF4357-4F5E-4A9E-9D94-655EC0F886EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74DF4357-4F5E-4A9E-9D94-655EC0F886EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74DF4357-4F5E-4A9E-9D94-655EC0F886EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74DF4357-4F5E-4A9E-9D94-655EC0F886EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25828C74-ADF1-41D2-9880-D588C89410E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25828C74-ADF1-41D2-9880-D588C89410E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25828C74-ADF1-41D2-9880-D588C89410E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25828C74-ADF1-41D2-9880-D588C89410E8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EDA7CE05-4E97-4D16-BC0E-6E6B1D74B39A}
+	EndGlobalSection
+EndGlobal
