@@ -1,46 +1,13 @@
 ﻿using RestSharp;
-using System.Web;
 using System.Web.Mvc;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
-using Microsoft.Owin.Security;
-using Microsoft.AspNet.Identity;
 using ControleOrcamentoWeb.Models;
-using Microsoft.AspNet.Identity.Owin;
 
 namespace ControleOrcamentoWeb.Controllers
 {
     public class UserManageController : BaseController
     {
-        //public UserManager<IdentityUser> UserManager { get; private set; }
-
-        private ApplicationUserManager _userManager;
-        public ApplicationUserManager UserManager
-        {
-            get
-            {
-                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            }
-            private set
-            {
-                _userManager = value;
-            }
-        }
-
-        public ISecureDataFormat<AuthenticationTicket> AccessTokenFormat { get; private set; }
-
-        private IAuthenticationManager AuthenticationManager
-        {
-            get { return HttpContext.GetOwinContext().Authentication; }
-        }
-
-        //public UserManageController() : this(Startup.UserManagerFactory(), Startup.OAuthOptions.AccessTokenFormat) { }
-        //public UserManageController(UserManager<IdentityUser> userManager, ISecureDataFormat<AuthenticationTicket> accessTokenFormat)
-        //{
-        //    UserManager = userManager;
-        //    AccessTokenFormat = accessTokenFormat;
-        //}
-
         [AllowAnonymous]
         public ActionResult Register()
         {
@@ -55,23 +22,31 @@ namespace ControleOrcamentoWeb.Controllers
         {
             if (ModelState.IsValid)
             {
-                RestClient client = new RestClient(string.Format("{0}auth/registrar", URL_API_SERVICE));
-                RestRequest request = new RestRequest(Method.POST);
-                var json = JsonConvert.SerializeObject(model);
-                request.AddParameter("application/json; charset=utf-8", json, ParameterType.RequestBody);
-                var retorno = client.Execute<object>(request);
-                if (retorno.StatusCode == System.Net.HttpStatusCode.OK)
+                try
                 {
-                    return RedirectToAction("Index", "Home");
+                    RestClient client = new RestClient(string.Format("{0}auth/registrar", URL_API_SERVICE));
+                    RestRequest request = new RestRequest(Method.POST);
+                    var json = JsonConvert.SerializeObject(model);
+                    request.AddParameter("application/json; charset=utf-8", json, ParameterType.RequestBody);
+                    var retorno = client.Execute<object>(request);
+                    if (retorno.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        return RedirectToAction("Index", "Home");
+                    }
+                    if (!string.IsNullOrWhiteSpace(retorno.Content))
+                    {
+                        var result = Newtonsoft.Json.Linq.JObject.Parse(retorno.Content).ToObject<MessaResponseAPI>();
+                        ModelState.AddModelError("", result.Message);
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", SEM_COMUNICACAO_COM_SERVICO);
+                    }
                 }
-                if (!string.IsNullOrWhiteSpace(retorno.Content))
+                catch (System.Exception)
                 {
-                    var result = Newtonsoft.Json.Linq.JObject.Parse(retorno.Content).ToObject<MessaResponseAPI>();
-                    ModelState.AddModelError("", result.Message);
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Sem comunição com o serviço, tente novamente mais tarde. Obrigado.");
+
+                    ModelState.AddModelError("", ERRO_COMUNICAR_SERVICO);
                 }
             }
             return View(model);
@@ -91,19 +66,37 @@ namespace ControleOrcamentoWeb.Controllers
         {
             if (ModelState.IsValid)
             {
-                //var user = await UserManager.FindAsync(model.UserName, model.Senha);
-                //if (user != null)
-                //{
-                //    //await SignInAsync(user, model.RememberMe);
-                //    return RedirectToLocal(returnUrl);
-                //}
-                //else
-                //{
-                //    ModelState.AddModelError("", "Invalid username or password.");
-                //}
+                try
+                {
+                    RestClient client = new RestClient(string.Format("{0}auth/login", URL_API_SERVICE));
+                    RestRequest request = new RestRequest(Method.POST);
+                    request.AddHeader("content-type", "application/x-www-form-urlencoded");
+                    request.AddParameter("application/x-www-form-urlencoded", $"grant_type=password&Username={model.Email}&Password={model.Senha}", ParameterType.RequestBody);
+                    var retorno = client.Execute<object>(request);
+                    if (retorno.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        return RedirectToLocal(returnUrl);
+                    }
+                    else if (!string.IsNullOrWhiteSpace(retorno.Content))
+                    {
+                        var result = Newtonsoft.Json.Linq.JObject.Parse(retorno.Content).ToObject<MessaResponseAPI>();
+                        //TODO: VERIFICAR
+                        //if (result.Error.Equals("1"))
+                        //    return View("Lockout");
+                        //else if (result.Error.Equals("2"))
+                        //    return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = false });
+                        ModelState.AddModelError("", result.Error_Description);
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", SEM_COMUNICACAO_COM_SERVICO);
+                    }
+                }
+                catch (System.Exception)
+                {
+                    ModelState.AddModelError("", ERRO_COMUNICAR_SERVICO);
+                }
             }
-
-            // If we got this far, something failed, redisplay form
             return View(model);
         }
 
@@ -116,14 +109,6 @@ namespace ControleOrcamentoWeb.Controllers
             else
             {
                 return RedirectToAction("Index", "Home");
-            }
-        }
-
-        private void AddErrors(IdentityResult result)
-        {
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError("", error);
             }
         }
     }
