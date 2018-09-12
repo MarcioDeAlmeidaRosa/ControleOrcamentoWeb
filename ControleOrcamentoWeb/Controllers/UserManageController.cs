@@ -1,21 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using RestSharp;
 using System.Web;
 using System.Web.Mvc;
-
+using Newtonsoft.Json;
+using System.Threading.Tasks;
 using Microsoft.Owin.Security;
 using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
-using System.Threading.Tasks;
 using ControleOrcamentoWeb.Models;
 using Microsoft.AspNet.Identity.Owin;
-using RestSharp;
-using Newtonsoft.Json;
 
 namespace ControleOrcamentoWeb.Controllers
 {
-    public class UserManageController : Controller
+    public class UserManageController : BaseController
     {
         //public UserManager<IdentityUser> UserManager { get; private set; }
 
@@ -60,7 +55,7 @@ namespace ControleOrcamentoWeb.Controllers
         {
             if (ModelState.IsValid)
             {
-                RestClient client = new RestClient("http://localhost:60004/api/auth/registrar");
+                RestClient client = new RestClient(string.Format("{0}auth/registrar", URL_API_SERVICE));
                 RestRequest request = new RestRequest(Method.POST);
                 var json = JsonConvert.SerializeObject(model);
                 request.AddParameter("application/json; charset=utf-8", json, ParameterType.RequestBody);
@@ -69,8 +64,15 @@ namespace ControleOrcamentoWeb.Controllers
                 {
                     return RedirectToAction("Index", "Home");
                 }
-                var result = Newtonsoft.Json.Linq.JObject.Parse(retorno.Content).ToObject<MessaResponseAPI>();
-                ModelState.AddModelError("", result.Message);
+                if (!string.IsNullOrWhiteSpace(retorno.Content))
+                {
+                    var result = Newtonsoft.Json.Linq.JObject.Parse(retorno.Content).ToObject<MessaResponseAPI>();
+                    ModelState.AddModelError("", result.Message);
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Sem comunição com o serviço, tente novamente mais tarde. Obrigado.");
+                }
             }
             return View(model);
         }

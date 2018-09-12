@@ -1,17 +1,16 @@
-﻿using System;
+﻿using System.Web;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Web;
 using System.Web.Mvc;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
+using System.Threading.Tasks;
 using Microsoft.Owin.Security;
+using Microsoft.AspNet.Identity;
 using ControleOrcamentoWeb.Models;
+using Microsoft.AspNet.Identity.Owin;
 
 namespace ControleOrcamentoWeb.Controllers
 {
     [Authorize]
-    public class ManageController : Controller
+    public class ManageController : BaseController
     {
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
