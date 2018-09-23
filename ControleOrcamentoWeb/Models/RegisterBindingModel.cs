@@ -20,5 +20,9 @@ namespace ControleOrcamentoWeb.Models
         [Compare("Senha", ErrorMessage = "A senha não confere com a confirmação de senha.")]
         [Required(ErrorMessage = "O campo Confirmar senha é obrigatório.")]
         public string ConfirmacaoSenha { get; set; }
+
+        [Display(Name = "TimeZone")]
+        [Required(ErrorMessage = "O campo {0} senha é obrigatório.")]
+        public string TimeZone { get; set; }
     }
 }

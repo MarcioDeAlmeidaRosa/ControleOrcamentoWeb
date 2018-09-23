@@ -3,14 +3,24 @@ using System.Web.Mvc;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 using ControleOrcamentoWeb.Models;
+using System.Collections.Generic;
 
 namespace ControleOrcamentoWeb.Controllers
 {
     public class UserManageController : BaseController
     {
+        private ListaTimeZone[] RecuperarListaTimeZone()
+        {
+            RestClient client = new RestClient(string.Format("{0}timezone", URL_API_SERVICE));
+            RestRequest request = new RestRequest(Method.GET);
+            var dado = client.Execute<List<ListaTimeZone>>(request);
+            return dado.Data.ToArray();
+        }
+
         [AllowAnonymous]
         public ActionResult Register()
         {
+            ViewBag.ListaTimeZone = RecuperarListaTimeZone();
             return View();
         }
 
@@ -49,6 +59,7 @@ namespace ControleOrcamentoWeb.Controllers
                     ModelState.AddModelError("", ERRO_COMUNICAR_SERVICO);
                 }
             }
+            ViewBag.ListaTimeZone = RecuperarListaTimeZone();
             return View(model);
         }
 
